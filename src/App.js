@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import CurrencyRow from './CurrencyRow'
 import Equals from './Equals';
-
-
-
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 
@@ -30,7 +27,6 @@ function App() {
   }
 
   useEffect(() => {
-    getHistory()
     fetch(BASE_URL)
       .then(res => res.json())
       .then(data => {
@@ -47,6 +43,7 @@ function App() {
       fetch(`${BASE_URL}?base=${fromCurrency}&symbols=${toCurrency}`)
         .then(res => res.json())
         .then(data => setExchangeRate(data.rates[toCurrency]))
+      getHistory(fromCurrency, toCurrency)
     }
   }, [fromCurrency, toCurrency])
 
@@ -60,23 +57,14 @@ function App() {
     setAmountInFromCurrency(false)
   }
 
-  // const data = [
-  //   { date: '2018-08-01', rate: 0.88235 },
-  //   { date: '2018-08-02', rate: 0.90365 },
-  //   { date: '2018-08-03', rate: 0.87733 },
-  //   { date: '2018-08-04', rate: 0.89928 },
-  //   { date: '2018-08-05', rate: 0.89298 },
-  //   { date: '2018-08-06', rate: 0.87953 },
-  // ];
-
-  function getHistory() {
-    fetch("https://api.exchangeratesapi.io/history?start_at=2020-02-01&end_at=2020-02-20&symbols=GBP")
+  function getHistory(from, to) {
+    fetch(`https://api.exchangeratesapi.io/history?start_at=1999-01-04&end_at=${new Date().toISOString().slice(0, 10)}&base=${from}&symbols=${to}`)
       .then(res => res.json())
       .then(data => {
-        const x = Object.keys(data.rates)
+        const rates = Object.keys(data.rates)
           .map(date => ({ date: date, rate: Object.values(data.rates[date])[0] }))
-          .sort((dateA, dateB) => dateA.date - dateB.date)
-        setHistory(x)
+          .sort((a, b) => new Date(a.date) - new Date(b.date))
+        setHistory(rates)
       })
   }
 
@@ -102,19 +90,22 @@ function App() {
         onChangeAmount={handleToAmountChange}
         amount={toAmount}
       />
-      <h5>Last 30 Days of GBP</h5>
+      <h5>{`Rate History of ${fromCurrency} / ${toCurrency}`}</h5>
+
+      <div className="chart">
       <LineChart
-        width={500}
+        width={400}
         height={200}
         data={history}
         margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
       >
-        <XAxis dataKey="date" />
+        <XAxis dataKey="date" name="Date" />
         <YAxis dataKey="rate" />
         <Tooltip />
         <CartesianGrid stroke="#f5f5f5" />
-        <Line type="monotone" dataKey="rate" stroke="#ff7300" yAxisId={0} />
+        <Line type="monotone" dataKey="rate" stroke="#ff7300" yAxisId={0} dot={false} />
       </LineChart>
+      </div>
 
 
     </React.Fragment>
