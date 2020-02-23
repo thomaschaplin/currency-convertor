@@ -70,7 +70,7 @@ function App() {
 
   return (
     <React.Fragment>
-      <h1>Currency Converter</h1>
+      <h1>Currency Convertor</h1>
       <CurrencyRow
         currencyOptions={currencyOptions}
         selectedCurrency={fromCurrency}
@@ -91,8 +91,6 @@ function App() {
         amount={toAmount}
       />
       <h5>{`Rate History of ${fromCurrency} / ${toCurrency}`}</h5>
-
-      <div className="chart">
       <LineChart
         width={400}
         height={200}
@@ -105,9 +103,6 @@ function App() {
         <CartesianGrid stroke="#f5f5f5" />
         <Line type="monotone" dataKey="rate" stroke="#ff7300" yAxisId={0} dot={false} />
       </LineChart>
-      </div>
-
-
     </React.Fragment>
   );
 }
