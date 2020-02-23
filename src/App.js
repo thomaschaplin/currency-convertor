@@ -5,7 +5,7 @@ import Equals from './Equals';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 
-const BASE_URL = 'https://api.exchangeratesapi.io/latest'
+const BASE_URL = 'https://api.exchangeratesapi.io'
 
 function App() {
   const [currencyOptions, setCurrencyOptions] = useState([])
@@ -27,11 +27,11 @@ function App() {
   }
 
   useEffect(() => {
-    fetch(BASE_URL)
+    fetch(`${BASE_URL}/latest?base=GBP`)
       .then(res => res.json())
       .then(data => {
-        const firstCurrency = Object.keys(data.rates)[0]
-        setCurrencyOptions([data.base, ...Object.keys(data.rates)])
+        const firstCurrency = Object.keys(data.rates)[18]
+        setCurrencyOptions([...Object.keys(data.rates).sort()])
         setFromCurrency(data.base)
         setToCurrency(firstCurrency)
         setExchangeRate(data.rates[firstCurrency])
@@ -40,7 +40,7 @@ function App() {
 
   useEffect(() => {
     if (fromCurrency != null && toCurrency != null) {
-      fetch(`${BASE_URL}?base=${fromCurrency}&symbols=${toCurrency}`)
+      fetch(`${BASE_URL}/latest?base=${fromCurrency}&symbols=${toCurrency}`)
         .then(res => res.json())
         .then(data => setExchangeRate(data.rates[toCurrency]))
       getHistory(fromCurrency, toCurrency)
@@ -58,7 +58,7 @@ function App() {
   }
 
   function getHistory(from, to) {
-    fetch(`https://api.exchangeratesapi.io/history?start_at=1999-01-04&end_at=${new Date().toISOString().slice(0, 10)}&base=${from}&symbols=${to}`)
+    fetch(`${BASE_URL}/history?start_at=1999-01-04&end_at=${new Date().toISOString().slice(0, 10)}&base=${from}&symbols=${to}`)
       .then(res => res.json())
       .then(data => {
         const rates = Object.keys(data.rates)
