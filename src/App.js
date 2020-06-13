@@ -5,6 +5,7 @@ import Equals from './Equals';
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'recharts';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 
 const BASE_URL = 'https://api.exchangeratesapi.io'
@@ -20,6 +21,7 @@ function App() {
   // eslint-disable-next-line no-unused-vars
   const [highestRate, setHighestRate] = useState()
   const [lowestRate, setLowestRate] = useState()
+  const [loading, setLoading] = useState(false)
 
   let toAmount
   let fromAmount
@@ -63,6 +65,7 @@ function App() {
   }
 
   function getHistory(from, to, start = "1999-01-04") {
+    setLoading(true)
     fetch(`${BASE_URL}/history?start_at=${start}&end_at=${new Date().toISOString().slice(0, 10)}&base=${from}&symbols=${to}`)
       .then(res => res.json())
       .then(data => {
@@ -80,6 +83,7 @@ function App() {
           setLowestRate(ratesSorted[0])
           setHighestRate(ratesSorted[ratesSorted.length - 1])
         }
+        setLoading(false)
       })
   }
 
@@ -137,7 +141,7 @@ function App() {
         amount={toAmount}
       />
       <h5>{`Rate History of ${fromCurrency} / ${toCurrency}`}</h5>
-      <ResponsiveContainer
+      {loading ? <> <br /> <CircularProgress size={50} /> <br /> <br /> </> : <ResponsiveContainer
         width="90%"
         height={200}
       >
@@ -151,7 +155,8 @@ function App() {
           <CartesianGrid stroke="#f5f5f5" />
           <Line type="monotone" dataKey="rate" stroke="#ff7300" yAxisId={0} dot={false} />
         </LineChart>
-      </ResponsiveContainer>
+      </ResponsiveContainer>}
+
 
       <ButtonGroup color="default" aria-label="outlined primary button group" className="buttons">
         <Button onMouseDown={allTime}>All Time</Button>
